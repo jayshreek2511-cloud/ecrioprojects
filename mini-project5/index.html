@@ -142,8 +142,8 @@
         /* Normalization Simulator */
         .simulator-inputs {
             display: flex;
-            gap: 12px;
-            margin-bottom: 24px;
+            gap: 16px;
+            margin-bottom: 20px;
         }
 
         .input-group {
@@ -159,7 +159,7 @@
             margin-bottom: 8px;
         }
 
-        .input-group input {
+        .input-group input, .input-group select {
             width: 100%;
             padding: 14px;
             background: rgba(0, 0, 0, 0.3);
@@ -172,7 +172,7 @@
             transition: all 0.2s;
         }
 
-        .input-group input:focus {
+        .input-group input:focus, .input-group select:focus {
             border-color: var(--accent-green);
             box-shadow: 0 0 0 3px rgba(0, 255, 135, 0.15);
         }
@@ -254,22 +254,22 @@
             <!-- Normalization Simulator -->
             <div class="card">
                 <div class="card-title">
-                    Interactive Normalization Tool
-                    <span>Compute transforms using Titanic age statistics</span>
+                    Interactive Normalization & Class Insights
+                    <span>Compute transforms & analyze class context</span>
                 </div>
                 <div class="simulator-inputs">
                     <div class="input-group">
                         <label>Input Age (X)</label>
                         <input type="number" id="inputAge" value="22" min="0" max="100" oninput="calculateTransforms()">
                     </div>
-                </div>
-
-                <div style="font-size: 13px; color: var(--text-dim); margin-bottom: 20px; line-height: 1.5;">
-                    💡 Uses Titanic Dataset stats: 
-                    <strong>Min Age:</strong> 0.42 | 
-                    <strong>Max Age:</strong> 80.0 | 
-                    <strong>Mean:</strong> 29.70 | 
-                    <strong>Std Dev:</strong> 14.53
+                    <div class="input-group">
+                        <label>Passenger Class (Pclass)</label>
+                        <select id="inputClass" onchange="calculateTransforms()">
+                            <option value="1">1st Class</option>
+                            <option value="2">2nd Class</option>
+                            <option value="3" selected>3rd Class</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="sim-results">
@@ -283,6 +283,11 @@
                         <div class="sim-val" id="zscoreVal" style="color: var(--accent-blue);">-0.5299</div>
                         <div style="font-size: 10px; color: var(--text-dim); margin-top: 4px;">Scales to mean=0, std=1</div>
                     </div>
+                </div>
+
+                <!-- Live Class Comparison Insights -->
+                <div id="classInsights" style="margin-top: 20px; padding: 16px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border); border-radius: 16px; font-size: 13px; line-height: 1.6;">
+                    <!-- Filled dynamically -->
                 </div>
             </div>
 
@@ -369,13 +374,25 @@
         const MEAN_AGE = 29.699118;
         const STD_AGE = 14.526497;
 
+        // Class stats data
+        const classData = {
+            '1': { avgAge: 38.23, survival: 62.96, maleSurvival: 36.89, femaleSurvival: 96.81, label: '1st Class' },
+            '2': { avgAge: 29.88, survival: 47.28, maleSurvival: 15.74, femaleSurvival: 92.11, label: '2nd Class' },
+            '3': { avgAge: 25.14, survival: 24.24, maleSurvival: 13.54, femaleSurvival: 50.00, label: '3rd Class' }
+        };
+
         function calculateTransforms() {
             const ageInput = document.getElementById('inputAge');
+            const classSelect = document.getElementById('inputClass');
+            const insightsBox = document.getElementById('classInsights');
+            
             let age = parseFloat(ageInput.value);
+            let pclass = classSelect.value;
 
             if (isNaN(age) || age < 0) {
                 document.getElementById('minmaxVal').textContent = '—';
                 document.getElementById('zscoreVal').textContent = '—';
+                insightsBox.innerHTML = '⚠️ Please enter a valid age.';
                 return;
             }
 
@@ -388,6 +405,28 @@
 
             document.getElementById('minmaxVal').textContent = minmax.toFixed(4);
             document.getElementById('zscoreVal').textContent = (zscore >= 0 ? '+' : '') + zscore.toFixed(4);
+
+            // Generate class comparison insights
+            const classStats = classData[pclass];
+            const ageDiff = (age - classStats.avgAge).toFixed(1);
+            const relativeComparison = ageDiff > 0 
+                ? `<strong style="color: var(--accent-pink);">${Math.abs(ageDiff)} years older</strong>` 
+                : `<strong style="color: var(--accent-green);">${Math.abs(ageDiff)} years younger</strong>`;
+
+            insightsBox.innerHTML = `
+                <div>📍 Class Selected: <strong>${classStats.label}</strong></div>
+                <div style="margin-top: 6px;">
+                    • Your input age of <strong>${age}</strong> is ${relativeComparison} than the average age for this class (<strong>${classStats.avgAge} years</strong>).
+                </div>
+                <div style="margin-top: 6px;">
+                    • The general survival rate for this class is <strong>${classStats.survival}%</strong>.
+                </div>
+                <div style="margin-top: 6px;">
+                    • For passengers in this class: 
+                    <span style="color: var(--accent-blue);">Males (SexCode 0) had a <strong>${classStats.maleSurvival}%</strong> survival rate</span>, while 
+                    <span style="color: var(--accent-pink);">Females (SexCode 1) had a <strong>${classStats.femaleSurvival}%</strong> survival rate</span>.
+                </div>
+            `;
         }
 
         // Run on load
