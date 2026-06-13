@@ -16,8 +16,8 @@ Demonstrates MQTT publish/subscribe messaging using a public broker via Python a
 
 ## How to Run
 
-### Python CLI (Pub/Sub)
-Open **two separate terminals**:
+### Python CLI (Terminal)
+Open **two separate terminal windows**:
 
 **Terminal 1 — Start Subscriber:**
 ```bash
@@ -30,8 +30,15 @@ python subscriber.py
 python publisher.py
 ```
 
-### Web Version
-Open `index.html` in any browser — connect to `broker.hivemq.com` on port `8000` (WebSocket) and test publishing/subscribing interactively!
+### Web Version (Localhost)
+Start a local HTTP server from the root projects directory:
+```bash
+python -m http.server 8080
+```
+Then navigate to:
+**[http://localhost:8080/mini-project7/index.html](http://localhost:8080/mini-project7/index.html)**
+
+*Alternatively, you can open `index.html` directly in any web browser.*
 
 ## Files
 | File | Description |
@@ -40,6 +47,7 @@ Open `index.html` in any browser — connect to `broker.hivemq.com` on port `800
 | `subscriber.py` | Subscribes and prints incoming messages |
 | `requirements.txt` | Python dependencies |
 | `index.html` | Real-time MQTT subscriber/publisher dashboard |
+| `README.md` | Documentation |
 
 ## Concepts Used
 - MQTT protocol (IoT communication)

@@ -13,15 +13,23 @@ A web-based To-Do list application built with Flask and a stunning modern UI.
 
 ## How to Run
 
-### Flask Version (with backend)
+### Flask Version (Terminal / Localhost)
 ```bash
 pip install -r requirements.txt
 python app.py
 ```
-Then open **http://127.0.0.1:5000** in your browser.
+Then navigate to:
+**[http://127.0.0.1:5000](http://127.0.0.1:5000)**
 
-### Standalone Web Version
-Open `templates/index.html` directly in any browser — works without Flask using localStorage.
+### Standalone Web Version (Localhost)
+Start a local HTTP server from the root projects directory:
+```bash
+python -m http.server 8080
+```
+Then navigate to:
+**[http://localhost:8080/mini-project6/templates/index.html](http://localhost:8080/mini-project6/templates/index.html)**
+
+*Alternatively, you can open `templates/index.html` directly in any web browser.*
 
 ## Files
 | File | Description |
@@ -29,6 +37,7 @@ Open `templates/index.html` directly in any browser — works without Flask usin
 | `app.py` | Flask application (routes, JSON persistence) |
 | `templates/index.html` | Modern web UI with glassmorphism design |
 | `requirements.txt` | Python dependencies (`flask`) |
+| `README.md` | Documentation |
 
 ## Concepts Used
 - Flask (routes, Jinja2 templates, form handling, redirects)

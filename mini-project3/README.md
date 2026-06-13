@@ -24,14 +24,21 @@ Exploratory data analysis on the Titanic dataset using Python (Pandas) and a bea
 
 ## How to Run
 
-### CLI Version
+### CLI Version (Terminal)
 ```bash
 pip install pandas
 python titanic.py
 ```
 
-### Web Version
-Open `index.html` in any browser — no server needed.
+### Web Version (Localhost)
+Start a local HTTP server from the root projects directory:
+```bash
+python -m http.server 8080
+```
+Then navigate to:
+**[http://localhost:8080/mini-project3/index.html](http://localhost:8080/mini-project3/index.html)**
+
+*Alternatively, you can open `index.html` directly in any web browser.*
 
 ## Files
 | File | Description |
@@ -40,6 +47,7 @@ Open `index.html` in any browser — no server needed.
 | `titanic.py` | Analysis script |
 | `titanic_cleaned.csv` | Cleaned dataset (generated output) |
 | `index.html` | Interactive data analytics dashboard |
+| `README.md` | Documentation |
 
 ## Concepts Used
 - Pandas (`groupby`, `apply`, `fillna`, filtering) — Python

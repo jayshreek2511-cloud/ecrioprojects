@@ -19,13 +19,20 @@ A personal finance tracker built with Python (CLI) and a beautiful web interface
 
 ## How to Run
 
-### CLI Version
+### CLI Version (Terminal)
 ```bash
 python transactions.py
 ```
 
-### Web Version
-Open `index.html` in any browser — no server needed.
+### Web Version (Localhost)
+Start a local HTTP server from the root projects directory:
+```bash
+python -m http.server 8080
+```
+Then navigate to:
+**[http://localhost:8080/mini-project2/index.html](http://localhost:8080/mini-project2/index.html)**
+
+*Alternatively, you can open `index.html` directly in any web browser.*
 
 ## Files
 | File | Description |
@@ -33,6 +40,7 @@ Open `index.html` in any browser — no server needed.
 | `transactions.py` | CLI finance tracker with OOP |
 | `index.html` | Web-based finance tracker with modern UI |
 | `transactions.log` | Log file for CLI transactions |
+| `README.md` | Documentation |
 
 ## Concepts Used
 - Object-Oriented Programming (classes, inheritance) — Python

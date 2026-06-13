@@ -16,22 +16,27 @@ A calculator application built with Python (CLI) and a beautiful web interface.
 
 ## How to Run
 
-### CLI Version
+### CLI Version (Terminal)
 ```bash
 python calculator.py
 ```
 
-### Web Version
-Open `index.html` in any browser — no server needed.
+### Web Version (Localhost)
+Start a local HTTP server from the root projects directory:
+```bash
+python -m http.server 8080
+```
+Then navigate to:
+**[http://localhost:8080/mini-project1/index.html](http://localhost:8080/mini-project1/index.html)**
 
-## Screenshots
-Open `index.html` to see the dark-themed calculator with a history panel on the right.
+*Alternatively, you can open `index.html` directly in any web browser.*
 
 ## Files
 | File | Description |
 |------|-------------|
 | `calculator.py` | CLI calculator (menu-driven) |
 | `index.html` | Web-based calculator with modern UI |
+| `README.md` | Documentation |
 
 ## Concepts Used
 - Functions, control flow, loops, exception handling (Python)

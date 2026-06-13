@@ -23,14 +23,21 @@ Data preprocessing and transformation on the Titanic dataset using Python (Panda
 
 ## How to Run
 
-### CLI Version
+### CLI Version (Terminal)
 ```bash
 pip install pandas
 python Titanic.py
 ```
 
-### Web Version
-Open `index.html` in any browser — no server needed.
+### Web Version (Localhost)
+Start a local HTTP server from the root projects directory:
+```bash
+python -m http.server 8080
+```
+Then navigate to:
+**[http://localhost:8080/mini-project5/index.html](http://localhost:8080/mini-project5/index.html)**
+
+*Alternatively, you can open `index.html` directly in any web browser.*
 
 ## Files
 | File | Description |
@@ -39,6 +46,7 @@ Open `index.html` in any browser — no server needed.
 | `Titanic.py` | Preprocessing script |
 | `titanic_project5_output.csv` | Processed dataset (generated output) |
 | `index.html` | Interactive preprocessing dashboard |
+| `README.md` | Documentation |
 
 ## Concepts Used
 - Data normalization (Min-Max, Z-score formulas)
