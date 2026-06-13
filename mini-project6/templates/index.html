@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>To-Do App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 400px;
+            margin: 60px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        form {
+            display: flex;
+            gap: 10px;
+        }
+
+        input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            background: #2575fc;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1a5edb;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+
+        li {
+            background: #f4f4f4;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .completed {
+            text-decoration: line-through;
+            color: gray;
+        }
+
+        .actions a {
+            text-decoration: none;
+            margin-left: 10px;
+            font-size: 14px;
+        }
+
+        .delete {
+            color: red;
+        }
+
+        .complete {
+            color: green;
+            cursor: pointer;
+        }
+    </style>
+
+    <script>
+        function toggleComplete(element) {
+            element.parentElement.classList.toggle("completed");
+        }
+    </script>
+</head>
+<body>
+
+<div class="container">
+    <h1>✨ To-Do List</h1>
+
+    <form action="/add" method="POST">
+        <input type="text" name="task" placeholder="Enter task..." required>
+        <button type="submit">Add</button>
+    </form>
+
+    <ul>
+        {% for task in tasks %}
+        <li>
+            <span onclick="toggleComplete(this)" style="cursor:pointer;">
+                {{ task }}
+            </span>
+            <div class="actions">
+                <a href="#" class="complete" onclick="toggleComplete(this.parentElement.parentElement)">✔</a>
+                <a href="/delete/{{ loop.index0 }}" class="delete">✖</a>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+
+</body>
+</html>
