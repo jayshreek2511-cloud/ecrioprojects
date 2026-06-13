@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MQTT Pub/Sub Dashboard</title>
+    <meta name="description" content="A live real-time MQTT message broker console.">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Paho MQTT Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js" type="text/javascript"></script>
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #09090e;
+            --card-bg: rgba(22, 22, 44, 0.7);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --accent-green: #10b981;
+            --accent-blue: #00d2ff;
+            --accent-purple: #8b5cf6;
+            --text-light: #f3f4f6;
+            --text-dim: rgba(243, 244, 246, 0.5);
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-light);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(139, 92, 246, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 210, 255, 0.1) 0%, transparent 40%);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 24px;
+        }
+
+        .header-title h1 {
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-blue), #9333ea, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-title p {
+            font-size: 13px;
+            color: var(--text-dim);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        /* Status Indicator */
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ef4444;
+            box-shadow: 0 0 8px #ef4444;
+            transition: all 0.3s;
+        }
+
+        .status-dot.connected {
+            background: var(--accent-green);
+            box-shadow: 0 0 10px var(--accent-green);
+        }
+
+        /* Panels layout */
+        .layout {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 24px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 24px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        /* Form elements */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-dim);
+            margin-bottom: 6px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 14px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            color: var(--text-light);
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(0, 210, 255, 0.15);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+
+        .btn-connect {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+        .btn-connect:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5); }
+        .btn-connect:active { transform: scale(0.97); }
+
+        .btn-pub {
+            background: linear-gradient(135deg, var(--accent-purple), #7c3aed);
+            color: white;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+        .btn-pub:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(139, 92, 246, 0.5); }
+        .btn-pub:active:not(:disabled) { transform: scale(0.97); }
+        .btn-pub:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Console Log style */
+        .console {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 16px;
+            height: 350px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 13px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            scrollbar-width: thin;
+        }
+
+        .console-line {
+            display: flex;
+            gap: 8px;
+            animation: lineFade 0.2s ease-out;
+        }
+
+        @keyframes lineFade {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .console-time { color: var(--text-dim); }
+        .console-tag { font-weight: bold; }
+        .console-tag.pub { color: var(--accent-blue); }
+        .console-tag.sub { color: var(--accent-green); }
+        .console-tag.sys { color: #f59e0b; }
+
+        .console-msg { color: #ffffff; }
+
+        @media (max-width: 768px) {
+            .layout { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-title">
+                <h1>MQTT Pub/Sub Dashboard</h1>
+                <p>Mini Project 7</p>
+            </div>
+            <div class="status-badge">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText">Disconnected</span>
+            </div>
+        </div>
+
+        <div class="layout">
+            <!-- Controls panel -->
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+                <div class="card">
+                    <div class="card-title" style="margin-bottom: 15px;">Connection Settings</div>
+                    <div class="form-group">
+                        <label>Broker Host</label>
+                        <input type="text" id="brokerHost" value="broker.hivemq.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Port (WS)</label>
+                        <input type="number" id="brokerPort" value="8000">
+                    </div>
+                    <button class="btn btn-connect" id="btnConnect" onclick="toggleConnection()">Connect</button>
+                </div>
+
+                <div class="card">
+                    <div class="card-title" style="margin-bottom: 15px;">Publish Message</div>
+                    <div class="form-group">
+                        <label>Topic</label>
+                        <input type="text" id="pubTopic" value="ecrio/demo/topic">
+                    </div>
+                    <div class="form-group">
+                        <label>Payload</label>
+                        <input type="text" id="pubPayload" value="Random number: 42">
+                    </div>
+                    <button class="btn btn-pub" id="btnPub" onclick="publish()" disabled>Publish</button>
+                </div>
+            </div>
+
+            <!-- Console Log Panel -->
+            <div class="card" style="display: flex; flex-direction: column; gap: 15px;">
+                <div class="card-title" style="margin-bottom: 0;">Live Message Feed</div>
+                <div class="console" id="consoleLog">
+                    <div class="console-line"><span class="console-time">[18:00:00]</span> <span class="console-tag sys">[SYSTEM]</span> <span class="console-msg">MQTT Dashboard Loaded. Click Connect to start.</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let client = null;
+        let isConnected = false;
+
+        function log(tag, type, message) {
+            const consoleLog = document.getElementById('consoleLog');
+            const timeStr = new Date().toLocaleTimeString();
+            
+            const line = document.createElement('div');
+            line.className = 'console-line';
+            line.innerHTML = `
+                <span class="console-time">[${timeStr}]</span>
+                <span class="console-tag ${type}">[${tag}]</span>
+                <span class="console-msg">${message}</span>
+            `;
+            
+            consoleLog.appendChild(line);
+            consoleLog.scrollTop = consoleLog.scrollHeight;
+        }
+
+        function toggleConnection() {
+            if (isConnected) {
+                disconnect();
+            } else {
+                connect();
+            }
+        }
+
+        function connect() {
+            const host = document.getElementById('brokerHost').value;
+            const port = parseInt(document.getElementById('brokerPort').value);
+            const clientId = "mqtt_web_" + Math.random().toString(16).substr(2, 8);
+
+            log('SYSTEM', 'sys', `Connecting to ${host}:${port}...`);
+            
+            client = new Paho.MQTT.Client(host, port, clientId);
+            
+            client.onConnectionLost = onConnectionLost;
+            client.onMessageArrived = onMessageArrived;
+
+            const options = {
+                onSuccess: onConnect,
+                onFailure: onFailure,
+                useSSL: false
+            };
+
+            client.connect(options);
+        }
+
+        function disconnect() {
+            if (client) {
+                client.disconnect();
+                isConnected = false;
+                updateUIState();
+                log('SYSTEM', 'sys', 'Disconnected from broker.');
+            }
+        }
+
+        function onConnect() {
+            isConnected = true;
+            updateUIState();
+            log('SYSTEM', 'sys', 'Connected successfully!');
+            
+            // Subscribe automatically
+            const topic = document.getElementById('pubTopic').value;
+            client.subscribe(topic);
+            log('SUBSCRIBE', 'sub', `Subscribed to topic: "${topic}"`);
+        }
+
+        function onFailure(err) {
+            isConnected = false;
+            updateUIState();
+            log('SYSTEM', 'sys', 'Connection failed: ' + err.errorMessage);
+        }
+
+        function onConnectionLost(responseObject) {
+            isConnected = false;
+            updateUIState();
+            if (responseObject.errorCode !== 0) {
+                log('SYSTEM', 'sys', 'Connection lost: ' + responseObject.errorMessage);
+            }
+        }
+
+        function onMessageArrived(message) {
+            log('RECEIVE', 'sub', `Message: "${message.payloadString}" on topic: "${message.destinationName}"`);
+        }
+
+        function publish() {
+            if (!isConnected) return;
+            
+            const topic = document.getElementById('pubTopic').value;
+            const payload = document.getElementById('pubPayload').value;
+            
+            const message = new Paho.MQTT.Message(payload);
+            message.destinationName = topic;
+            client.send(message);
+            
+            log('PUBLISH', 'pub', `Published: "${payload}" to "${topic}"`);
+        }
+
+        function updateUIState() {
+            const dot = document.getElementById('statusDot');
+            const text = document.getElementById('statusText');
+            const btnConnect = document.getElementById('btnConnect');
+            const btnPub = document.getElementById('btnPub');
+
+            if (isConnected) {
+                dot.className = 'status-dot connected';
+                text.textContent = 'Connected';
+                btnConnect.textContent = 'Disconnect';
+                btnConnect.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+                btnPub.disabled = false;
+            } else {
+                dot.className = 'status-dot';
+                text.textContent = 'Disconnected';
+                btnConnect.textContent = 'Connect';
+                btnConnect.style.background = 'linear-gradient(135deg, #3b82f6, #2563eb)';
+                btnPub.disabled = true;
+            }
+        }
+    </script>
+</body>
+</html>

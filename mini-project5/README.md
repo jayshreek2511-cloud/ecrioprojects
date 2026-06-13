@@ -1,6 +1,6 @@
 # Mini Project 5 — Titanic Data Preprocessing & Grouping
 
-Data preprocessing and transformation on the Titanic dataset using Pandas.
+Data preprocessing and transformation on the Titanic dataset using Python (Pandas) and an interactive web simulator.
 
 ## Features
 - Group by passenger class with average age and survival rate
@@ -11,11 +11,22 @@ Data preprocessing and transformation on the Titanic dataset using Pandas.
 - Age group classification (Child / Adult)
 - **Pivot table** — survival rate by class and gender
 
+### Web Interface (`index.html`)
+- Dark **glassmorphism** design with vibrant neon accent highlights
+- **Interactive Normalization Simulator** — input any custom age to calculate its Z-score and Min-Max value in real time using real Titanic dataset statistics
+- Formatted tabular layouts for Grouped DataFrame outputs
+- Interactive Multi-dimensional **Pivot Grid** visualizing survival rates
+
 ## How to Run
+
+### CLI Version
 ```bash
 pip install pandas
 python Titanic.py
 ```
+
+### Web Version
+Open `index.html` in any browser — no server needed.
 
 ## Files
 | File | Description |
@@ -23,9 +34,10 @@ python Titanic.py
 | `Titanic.csv` | Original Titanic dataset |
 | `Titanic.py` | Preprocessing script |
 | `titanic_project5_output.csv` | Processed dataset (generated output) |
+| `index.html` | Interactive preprocessing dashboard |
 
 ## Concepts Used
-- Data normalization (Min-Max, Z-score)
-- Feature encoding (categorical → numeric)
-- Pivot tables
-- Pandas `groupby` with `.agg()`
+- Data normalization (Min-Max, Z-score formulas)
+- Feature encoding & Pivot tables
+- HTML5, CSS3 Grid layouts & transitions
+- Real-time client-side calculation (JavaScript)

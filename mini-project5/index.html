@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Titanic Preprocessing & Normalization</title>
+    <meta name="description" content="Interactive dashboard visualizing Titanic dataset preprocessing and normalizations.">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #070714;
+            --card-bg: rgba(20, 20, 45, 0.65);
+            --card-border: rgba(255, 255, 255, 0.07);
+            --accent-green: #00ff87;
+            --accent-blue: #60a5fa;
+            --accent-pink: #f472b6;
+            --accent-purple: #8b5cf6;
+            --text-light: #f3f4f6;
+            --text-dim: rgba(243, 244, 246, 0.5);
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-light);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 80% 10%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 20% 90%, rgba(0, 255, 135, 0.1) 0%, transparent 50%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 24px;
+        }
+
+        .header-title h1 {
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-green), #60a5fa, var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-title p {
+            font-size: 13px;
+            color: var(--text-dim);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        .badge {
+            background: rgba(0, 255, 135, 0.1);
+            border: 1px solid rgba(0, 255, 135, 0.2);
+            color: var(--accent-green);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* Dashboard Layout */
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 28px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card:hover {
+            border-color: rgba(0, 255, 135, 0.2);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title span {
+            font-size: 12px;
+            color: var(--text-dim);
+            font-weight: 400;
+        }
+
+        /* Stats Table */
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .stats-table th {
+            text-align: left;
+            padding: 12px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-dim);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .stats-table td {
+            padding: 14px 12px;
+            font-size: 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .stats-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Normalization Simulator */
+        .simulator-inputs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .input-group {
+            flex: 1;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            color: var(--text-light);
+            font-family: 'Outfit', sans-serif;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .input-group input:focus {
+            border-color: var(--accent-green);
+            box-shadow: 0 0 0 3px rgba(0, 255, 135, 0.15);
+        }
+
+        .sim-results {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .sim-card {
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .sim-val {
+            font-size: 24px;
+            font-weight: 700;
+            margin-top: 6px;
+        }
+
+        /* Pivot Grid */
+        .pivot-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .pivot-cell {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .pivot-cell.header-cell {
+            background: rgba(139, 92, 246, 0.1);
+            border-color: rgba(139, 92, 246, 0.2);
+            font-weight: 600;
+        }
+
+        .pivot-cell .percent {
+            font-size: 20px;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .class-badge {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        @media (max-width: 900px) {
+            .dashboard-layout { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-title">
+                <h1>Titanic Preprocessing & Normalization</h1>
+                <p>Mini Project 5</p>
+            </div>
+            <div class="badge">Pipeline Status: Complete</div>
+        </div>
+
+        <div class="dashboard-layout">
+            <!-- Normalization Simulator -->
+            <div class="card">
+                <div class="card-title">
+                    Interactive Normalization Tool
+                    <span>Compute transforms using Titanic age statistics</span>
+                </div>
+                <div class="simulator-inputs">
+                    <div class="input-group">
+                        <label>Input Age (X)</label>
+                        <input type="number" id="inputAge" value="22" min="0" max="100" oninput="calculateTransforms()">
+                    </div>
+                </div>
+
+                <div style="font-size: 13px; color: var(--text-dim); margin-bottom: 20px; line-height: 1.5;">
+                    💡 Uses Titanic Dataset stats: 
+                    <strong>Min Age:</strong> 0.42 | 
+                    <strong>Max Age:</strong> 80.0 | 
+                    <strong>Mean:</strong> 29.70 | 
+                    <strong>Std Dev:</strong> 14.53
+                </div>
+
+                <div class="sim-results">
+                    <div class="sim-card">
+                        <div class="input-group"><label>Min-Max Normalization</label></div>
+                        <div class="sim-val" id="minmaxVal" style="color: var(--accent-green);">0.2712</div>
+                        <div style="font-size: 10px; color: var(--text-dim); margin-top: 4px;">Scales value between [0, 1]</div>
+                    </div>
+                    <div class="sim-card">
+                        <div class="input-group"><label>Z-score Normalization</label></div>
+                        <div class="sim-val" id="zscoreVal" style="color: var(--accent-blue);">-0.5299</div>
+                        <div style="font-size: 10px; color: var(--text-dim); margin-top: 4px;">Scales to mean=0, std=1</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Group By Pclass -->
+            <div class="card">
+                <div class="card-title">
+                    Avg Age & Survival by Pclass
+                    <span>DataFrame grouping results</span>
+                </div>
+                <table class="stats-table">
+                    <thead>
+                        <tr>
+                            <th>Pclass</th>
+                            <th>Average Age</th>
+                            <th>Survival Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="class-badge">1st Class</span></td>
+                            <td><strong>38.23 years</strong></td>
+                            <td style="color: var(--accent-green); font-weight: 600;">62.96%</td>
+                        </tr>
+                        <tr>
+                            <td><span class="class-badge">2nd Class</span></td>
+                            <td><strong>29.88 years</strong></td>
+                            <td style="color: var(--accent-blue); font-weight: 600;">47.28%</td>
+                        </tr>
+                        <tr>
+                            <td><span class="class-badge">3rd Class</span></td>
+                            <td><strong>25.14 years</strong></td>
+                            <td style="color: var(--accent-pink); font-weight: 600;">24.24%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pivot Table -->
+            <div class="card" style="grid-column: span 2;">
+                <div class="card-title">
+                    Pivot Table: Survival Rate by Pclass vs Gender
+                    <span>Multi-dimensional analysis matrix</span>
+                </div>
+                <div class="pivot-grid">
+                    <!-- Row 1 headers -->
+                    <div class="pivot-cell header-cell">Class</div>
+                    <div class="pivot-cell header-cell" style="color: var(--accent-blue);">Male (SexCode 0)</div>
+                    <div class="pivot-cell header-cell" style="color: var(--accent-pink);">Female (SexCode 1)</div>
+
+                    <!-- Pclass 1 -->
+                    <div class="pivot-cell"><strong>1st Class</strong></div>
+                    <div class="pivot-cell">
+                        <div class="percent">36.89%</div>
+                    </div>
+                    <div class="pivot-cell">
+                        <div class="percent" style="color: var(--accent-green);">96.81%</div>
+                    </div>
+
+                    <!-- Pclass 2 -->
+                    <div class="pivot-cell"><strong>2nd Class</strong></div>
+                    <div class="pivot-cell">
+                        <div class="percent">15.74%</div>
+                    </div>
+                    <div class="pivot-cell">
+                        <div class="percent" style="color: var(--accent-green);">92.11%</div>
+                    </div>
+
+                    <!-- Pclass 3 -->
+                    <div class="pivot-cell"><strong>3rd Class</strong></div>
+                    <div class="pivot-cell">
+                        <div class="percent">13.54%</div>
+                    </div>
+                    <div class="pivot-cell">
+                        <div class="percent">50.00%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const MIN_AGE = 0.42;
+        const MAX_AGE = 80.0;
+        const MEAN_AGE = 29.699118;
+        const STD_AGE = 14.526497;
+
+        function calculateTransforms() {
+            const ageInput = document.getElementById('inputAge');
+            let age = parseFloat(ageInput.value);
+
+            if (isNaN(age) || age < 0) {
+                document.getElementById('minmaxVal').textContent = '—';
+                document.getElementById('zscoreVal').textContent = '—';
+                return;
+            }
+
+            // Min-Max transform
+            let minmax = (age - MIN_AGE) / (MAX_AGE - MIN_AGE);
+            minmax = Math.max(0, Math.min(1, minmax)); // Clamp to [0, 1]
+
+            // Z-score transform
+            let zscore = (age - MEAN_AGE) / STD_AGE;
+
+            document.getElementById('minmaxVal').textContent = minmax.toFixed(4);
+            document.getElementById('zscoreVal').textContent = (zscore >= 0 ? '+' : '') + zscore.toFixed(4);
+        }
+
+        // Run on load
+        calculateTransforms();
+    </script>
+</body>
+</html>
