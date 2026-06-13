@@ -1,31 +1,41 @@
-# Mini Project 2 — Transaction Tracker
+# Mini Project 2 — Finance Tracker
 
-A personal finance tracker built with Python using Object-Oriented Programming.
+A personal finance tracker built with Python (CLI) and a beautiful web interface.
 
 ## Features
 - Add Income and Expense entries
 - View all transactions
 - Summary with total income, total expense, and balance
-- **Data persistence** — transactions are saved to `transactions_data.json` and restored on restart
+- **Data persistence** — transactions are saved and restored on restart
 - Logging to `transactions.log`
 
+### Web Interface (`index.html`)
+- Dark **glassmorphism** theme with animated floating orbs
+- **3 summary cards** — Total Income, Total Expense, Balance (with hover animations)
+- **Category picker** with emojis (💼 Salary, 🍕 Food, 🛍️ Shopping, etc.)
+- Income/Expense **toggle switch** and **filter pills**
+- Delete transactions on hover with 🗑 button
+- **localStorage persistence** — data survives page refresh
+
 ## How to Run
+
+### CLI Version
 ```bash
 python transactions.py
 ```
 
-## Expected Output
-```
-===== MENU =====
-1. Add Income
-2. Add Expense
-3. View All Transactions
-4. Show Summary
-5. Exit
-```
+### Web Version
+Open `index.html` in any browser — no server needed.
+
+## Files
+| File | Description |
+|------|-------------|
+| `transactions.py` | CLI finance tracker with OOP |
+| `index.html` | Web-based finance tracker with modern UI |
+| `transactions.log` | Log file for CLI transactions |
 
 ## Concepts Used
-- Object-Oriented Programming (classes, inheritance)
-- File I/O (JSON persistence)
-- Logging module
-- Exception handling
+- Object-Oriented Programming (classes, inheritance) — Python
+- File I/O (JSON persistence), Logging module — Python
+- HTML5, CSS3 (glassmorphism, gradients, animations) — Web
+- JavaScript (localStorage, DOM manipulation, state management) — Web
