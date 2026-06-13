@@ -13,7 +13,11 @@ Data preprocessing and transformation on the Titanic dataset using Python (Panda
 
 ### Web Interface (`index.html`)
 - Dark **glassmorphism** design with vibrant neon accent highlights
-- **Interactive Normalization Simulator** — input any custom age to calculate its Z-score and Min-Max value in real time using real Titanic dataset statistics
+- **Interactive Normalization & Class Insights Tool** — input a custom age and select a passenger class (1st, 2nd, or 3rd) to:
+  - Calculate Min-Max and Z-score normalized values in real time.
+  - Compare the input age to the class average (highlighting age differences).
+  - Show the class overall survival rate.
+  - View gender-specific survival rates for the selected class.
 - Formatted tabular layouts for Grouped DataFrame outputs
 - Interactive Multi-dimensional **Pivot Grid** visualizing survival rates
 
