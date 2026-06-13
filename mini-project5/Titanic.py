@@ -15,7 +15,7 @@ print("1. Avg Age & Survival Rate by Pclass:\n", group_pclass, "\n")
 
 # 2. Normalize Age (Min-Max) and Z-score
 # Fill missing first (needed for normalization)
-df['Age'].fillna(df['Age'].mean(), inplace=True)
+df['Age'] = df['Age'].fillna(df['Age'].mean())
 
 # Min-Max normalization
 df['Age_MinMax'] = (df['Age'] - df['Age'].min()) / (df['Age'].max() - df['Age'].min())

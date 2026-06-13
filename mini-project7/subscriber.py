@@ -1,4 +1,5 @@
 import paho.mqtt.client as mqtt
+from paho.mqtt.enums import CallbackAPIVersion
 
 broker = "test.mosquitto.org"
 port = 1883
@@ -11,7 +12,7 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
     print("Received:", msg.payload.decode())
 
-client = mqtt.Client()
+client = mqtt.Client(callback_api_version=CallbackAPIVersion.VERSION1)
 client.on_connect = on_connect
 client.on_message = on_message
 

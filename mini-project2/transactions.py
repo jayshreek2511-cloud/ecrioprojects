@@ -1,4 +1,6 @@
 import logging
+import json
+import os
 
 # Setup logging
 logging.basicConfig(
@@ -8,6 +10,9 @@ logging.basicConfig(
 )
 
 print("Program started...")
+
+# File for persistence
+DATA_FILE = "transactions_data.json"
 
 # Store all transactions
 transactions_list = []
@@ -25,6 +30,13 @@ class Transaction:
     def display_info(self):
         print(f"Amount: {self.amount}, Category: {self.category}")
 
+    def to_dict(self):
+        return {
+            "type": self.__class__.__name__,
+            "amount": self.amount,
+            "category": self.category
+        }
+
 
 # Subclasses
 class Income(Transaction):
@@ -37,6 +49,30 @@ class Expense(Transaction):
     def display(self):
         print("\n--- Expense ---")
         self.display_info()
+
+
+# Save transactions to JSON file
+def save_data():
+    data = [t.to_dict() for t in transactions_list]
+    with open(DATA_FILE, "w") as f:
+        json.dump(data, f, indent=2)
+
+
+# Load transactions from JSON file
+def load_data():
+    if not os.path.exists(DATA_FILE):
+        return
+    try:
+        with open(DATA_FILE, "r") as f:
+            data = json.load(f)
+        for item in data:
+            if item["type"] == "Income":
+                transactions_list.append(Income(item["amount"], item["category"]))
+            elif item["type"] == "Expense":
+                transactions_list.append(Expense(item["amount"], item["category"]))
+        print(f"Loaded {len(data)} saved transactions.")
+    except (json.JSONDecodeError, KeyError) as e:
+        print(f"Warning: Could not load saved data ({e})")
 
 
 # Function to show all transactions
@@ -71,6 +107,8 @@ def show_summary():
 
 # Main function
 def main():
+    load_data()
+
     while True:
         print("\n===== MENU =====")
         print("1. Add Income")
@@ -100,6 +138,7 @@ def main():
                     obj = Expense(amount, category)
 
                 transactions_list.append(obj)
+                save_data()
                 obj.display()
 
             elif choice == '3':

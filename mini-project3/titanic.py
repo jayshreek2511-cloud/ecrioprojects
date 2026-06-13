@@ -68,10 +68,10 @@ print("10. Avg Fare (1st Class Survivors):", avg_fare_first_class, "\n")
 
 # 11. Clean dataset and save
 # Fill missing Age with median
-df['Age'].fillna(df['Age'].median(), inplace=True)
+df['Age'] = df['Age'].fillna(df['Age'].median())
 
 # Fill missing Embarked with mode
-df['Embarked'].fillna(df['Embarked'].mode()[0], inplace=True)
+df['Embarked'] = df['Embarked'].fillna(df['Embarked'].mode()[0])
 
 # Save cleaned dataset
 df.to_csv("titanic_cleaned.csv", index=False)
